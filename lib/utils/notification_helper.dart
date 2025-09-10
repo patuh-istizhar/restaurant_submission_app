@@ -29,6 +29,7 @@ class NotificationHelper {
       'Get daily recommendations for amazing restaurants!';
 
   static Future<void> initialize() async {
+    if (kIsWeb) return; // Disable this feature on web
     await _configureLocalTimeZone();
 
     // Using a default system icon to prevent crashes
@@ -64,6 +65,7 @@ class NotificationHelper {
   }
 
   static Future<bool> _requestPermissions() async {
+    if (kIsWeb) return false;
     if (Platform.isAndroid) {
       final status = await Permission.notification.request();
       if (status.isGranted) {
@@ -77,6 +79,7 @@ class NotificationHelper {
   }
 
   static Future<void> scheduleDailyReminder() async {
+    if (kIsWeb) return;
     if (!await _requestPermissions()) return;
 
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
@@ -153,11 +156,13 @@ class NotificationHelper {
   }
 
   static Future<void> cancelDailyReminder() async {
+    if (kIsWeb) return;
     await _flutterLocalNotificationsPlugin.cancel(0);
     developer.log('Daily reminder cancelled', name: 'NotificationHelper');
   }
 
   static Future<void> showInstantTestNotification() async {
+    if (kIsWeb) return;
     if (!await _requestPermissions()) return;
 
     final restaurant = await _getRestaurantForNotification();

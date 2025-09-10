@@ -39,48 +39,50 @@ class AppTheme {
     );
 
     final textTheme = baseTheme.textTheme.copyWith(
-      displayLarge: GoogleFonts.montserrat(
+      displayLarge: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.displayLarge,
         fontWeight: FontWeight.bold,
       ),
-      displayMedium: GoogleFonts.montserrat(
+      displayMedium: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.displayMedium,
         fontWeight: FontWeight.bold,
       ),
-      displaySmall: GoogleFonts.montserrat(
+      displaySmall: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.displaySmall,
         fontWeight: FontWeight.bold,
       ),
-      headlineLarge: GoogleFonts.montserrat(
+      headlineLarge: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.headlineLarge,
         fontWeight: FontWeight.bold,
       ),
-      headlineMedium: GoogleFonts.montserrat(
+      headlineMedium: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.headlineMedium,
         fontWeight: FontWeight.bold,
       ),
-      headlineSmall: GoogleFonts.montserrat(
+      headlineSmall: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.headlineSmall,
         fontWeight: FontWeight.bold,
       ),
-      titleLarge: GoogleFonts.montserrat(
+      titleLarge: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.titleLarge,
         fontWeight: FontWeight.w600,
       ),
-      titleMedium: GoogleFonts.montserrat(
+      titleMedium: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.titleMedium,
         fontWeight: FontWeight.w600,
       ),
-      titleSmall: GoogleFonts.montserrat(
+      titleSmall: GoogleFonts.inter(
         textStyle: baseTheme.textTheme.titleSmall,
         fontWeight: FontWeight.w600,
       ),
-      bodyLarge: GoogleFonts.lato(textStyle: baseTheme.textTheme.bodyLarge),
-      bodyMedium: GoogleFonts.lato(textStyle: baseTheme.textTheme.bodyMedium),
-      bodySmall: GoogleFonts.lato(textStyle: baseTheme.textTheme.bodySmall),
-      labelLarge: GoogleFonts.lato(textStyle: baseTheme.textTheme.labelLarge),
-      labelMedium: GoogleFonts.lato(textStyle: baseTheme.textTheme.labelMedium),
-      labelSmall: GoogleFonts.lato(textStyle: baseTheme.textTheme.labelSmall),
+      bodyLarge: GoogleFonts.inter(textStyle: baseTheme.textTheme.bodyLarge),
+      bodyMedium: GoogleFonts.inter(textStyle: baseTheme.textTheme.bodyMedium),
+      bodySmall: GoogleFonts.inter(textStyle: baseTheme.textTheme.bodySmall),
+      labelLarge: GoogleFonts.inter(textStyle: baseTheme.textTheme.labelLarge),
+      labelMedium: GoogleFonts.inter(
+        textStyle: baseTheme.textTheme.labelMedium,
+      ),
+      labelSmall: GoogleFonts.inter(textStyle: baseTheme.textTheme.labelSmall),
     );
 
     return baseTheme.copyWith(

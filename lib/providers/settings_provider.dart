@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 
 import '../utils/notification_helper.dart';
 import '../utils/preferences_helper.dart';
@@ -11,14 +11,14 @@ class SettingsProvider with ChangeNotifier {
   bool _isDailyReminderEnabled = false;
   bool get isDailyReminderEnabled => _isDailyReminderEnabled;
 
-  // Dihapus: bool get isLoading => _isLoading;
-
   Future<void> loadSettings() async {
     _isDailyReminderEnabled = await PreferencesHelper.getDailyReminderSetting();
     notifyListeners();
   }
 
   Future<void> setDailyReminder(bool isEnabled) async {
+    if (kIsWeb) return; // Disable this feature on web
+
     // Optimistic Update: Update UI immediately
     _isDailyReminderEnabled = isEnabled;
     notifyListeners();
