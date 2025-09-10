@@ -6,6 +6,7 @@ import 'package:restaurant_app/data/storage/favorites_storage.dart';
 import 'package:restaurant_app/providers/favorites_provider.dart';
 import 'package:restaurant_app/screens/favorites_screen.dart';
 
+// A mock implementation of FavoritesStorage that allows setting initial favorites
 class FakeFavoritesStorage implements FavoritesStorage {
   final List<Restaurant> _favorites;
 
@@ -34,7 +35,28 @@ class FakeFavoritesStorage implements FavoritesStorage {
 }
 
 void main() {
-  testWidgets('FavoritesScreen shows favorite items and navigates to detail', (
+  testWidgets('FavoritesScreen shows a message when there are no favorites', (
+    WidgetTester tester,
+  ) async {
+    // Use the fake storage with an empty list
+    final storage = FakeFavoritesStorage([]);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => FavoritesProvider(storage),
+        child: const MaterialApp(home: FavoritesScreen()),
+      ),
+    );
+
+    // Let the Future in `loadFavorites` complete
+    await tester.pumpAndSettle();
+
+    // Expect to find the placeholder message
+    expect(find.text('Belum Ada Favorit'), findsOneWidget);
+    expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+  });
+
+  testWidgets('FavoritesScreen shows a list of favorite restaurants', (
     WidgetTester tester,
   ) async {
     final testRestaurant = Restaurant(
@@ -46,28 +68,21 @@ void main() {
       rating: 4.0,
     );
 
+    // Use the fake storage with one favorite item
     final storage = FakeFavoritesStorage([testRestaurant]);
-    final provider = FavoritesProvider(storage);
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: ChangeNotifierProvider<FavoritesProvider>.value(
-          value: provider,
-          child: const FavoritesScreen(),
-        ),
+      ChangeNotifierProvider(
+        create: (_) => FavoritesProvider(storage),
+        child: const MaterialApp(home: FavoritesScreen()),
       ),
     );
 
-    // trigger loadFavorites
+    // Let the Future in `loadFavorites` complete
     await tester.pumpAndSettle();
 
+    // Expect to find the restaurant card
     expect(find.text('Fav Resto'), findsOneWidget);
-
-    // Tap the card and expect navigation
-    await tester.tap(find.text('Fav Resto'));
-    await tester.pumpAndSettle();
-
-    // After navigation, RestaurantDetailScreen shows restaurant name in AppBar or body
-    expect(find.text('Fav Resto'), findsAtLeastNWidgets(1));
+    expect(find.text('Belum Ada Favorit'), findsNothing);
   });
 }

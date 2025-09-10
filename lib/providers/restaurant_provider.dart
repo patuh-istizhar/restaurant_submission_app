@@ -1,10 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '../data/models/restaurant.dart';
 import '../data/models/restaurant_detail.dart';
 import '../data/services/api_service.dart';
 
-sealed class RestaurantState {}
+abstract class RestaurantState {}
 
 class RestaurantInitial extends RestaurantState {}
 
@@ -12,15 +14,15 @@ class RestaurantLoading extends RestaurantState {}
 
 class RestaurantSuccess extends RestaurantState {
   final List<Restaurant> restaurants;
-  RestaurantSuccess(this.restaurants);
+  RestaurantSuccess({required this.restaurants});
 }
 
 class RestaurantError extends RestaurantState {
   final String message;
-  RestaurantError(this.message);
+  RestaurantError({required this.message});
 }
 
-sealed class RestaurantDetailState {}
+abstract class RestaurantDetailState {}
 
 class RestaurantDetailInitial extends RestaurantDetailState {}
 
@@ -28,21 +30,16 @@ class RestaurantDetailLoading extends RestaurantDetailState {}
 
 class RestaurantDetailSuccess extends RestaurantDetailState {
   final RestaurantDetail restaurant;
-  RestaurantDetailSuccess(this.restaurant);
+  RestaurantDetailSuccess({required this.restaurant});
 }
 
 class RestaurantDetailError extends RestaurantDetailState {
   final String message;
-  RestaurantDetailError(this.message);
+  RestaurantDetailError({required this.message});
 }
 
 class RestaurantProvider with ChangeNotifier {
-  final ApiService _apiService;
-
-  RestaurantProvider({ApiService? apiService})
-    : _apiService = apiService ?? ApiService() {
-    fetchRestaurants();
-  }
+  final ApiService apiService;
 
   RestaurantState _state = RestaurantInitial();
   RestaurantState get state => _state;
@@ -50,15 +47,16 @@ class RestaurantProvider with ChangeNotifier {
   RestaurantDetailState _detailState = RestaurantDetailInitial();
   RestaurantDetailState get detailState => _detailState;
 
+  RestaurantProvider({required this.apiService});
+
   Future<void> fetchRestaurants() async {
     _state = RestaurantLoading();
     notifyListeners();
-
     try {
-      final restaurants = await _apiService.getRestaurants();
-      _state = RestaurantSuccess(restaurants);
+      final restaurants = await apiService.getRestaurants();
+      _state = RestaurantSuccess(restaurants: restaurants);
     } catch (e) {
-      _state = RestaurantError(e.toString());
+      _state = RestaurantError(message: e.toString());
     }
     notifyListeners();
   }
@@ -66,65 +64,54 @@ class RestaurantProvider with ChangeNotifier {
   Future<void> fetchRestaurantDetail(String id) async {
     _detailState = RestaurantDetailLoading();
     notifyListeners();
-
     try {
-      final restaurant = await _apiService.getRestaurantDetail(id);
-      _detailState = RestaurantDetailSuccess(restaurant);
+      final restaurant = await apiService.getRestaurantDetail(id);
+      _detailState = RestaurantDetailSuccess(restaurant: restaurant);
     } catch (e) {
-      _detailState = RestaurantDetailError(e.toString());
+      _detailState = RestaurantDetailError(message: e.toString());
     }
     notifyListeners();
   }
 
   void setFavorites(Set<String> favoriteIds) {
     if (_state is RestaurantSuccess) {
-      final currentState = _state as RestaurantSuccess;
-      final updatedRestaurants = currentState.restaurants.map((restaurant) {
+      final currentRestaurants = (_state as RestaurantSuccess).restaurants;
+      final updatedRestaurants = currentRestaurants.map((restaurant) {
         return restaurant.copyWith(
           isFavorite: favoriteIds.contains(restaurant.id),
         );
       }).toList();
-      _state = RestaurantSuccess(updatedRestaurants);
+      _state = RestaurantSuccess(restaurants: updatedRestaurants);
       notifyListeners();
     }
   }
 
-  void toggleFavoriteStatus(String restaurantId, bool isFavorite) {
+  void toggleFavoriteStatus(String id, bool isFavorite) {
     if (_state is RestaurantSuccess) {
-      final currentState = _state as RestaurantSuccess;
-      final updatedRestaurants = currentState.restaurants.map((restaurant) {
-        if (restaurant.id == restaurantId) {
+      final currentRestaurants = (_state as RestaurantSuccess).restaurants;
+      final updatedRestaurants = currentRestaurants.map((restaurant) {
+        if (restaurant.id == id) {
           return restaurant.copyWith(isFavorite: isFavorite);
         }
         return restaurant;
       }).toList();
-      _state = RestaurantSuccess(updatedRestaurants);
+      _state = RestaurantSuccess(restaurants: updatedRestaurants);
       notifyListeners();
     }
   }
 
-  void retry() {
-    fetchRestaurants();
-  }
+  Future<void> retry() => fetchRestaurants();
+  Future<void> retryDetail(String id) => fetchRestaurantDetail(id);
 
-  void retryDetail(String id) {
-    fetchRestaurantDetail(id);
-  }
-
-  Future<bool> addReview(
-    String restaurantId,
-    String name,
-    String review,
-  ) async {
-    try {
-      final success = await _apiService.addReview(restaurantId, name, review);
-      if (success) {
-        await fetchRestaurantDetail(restaurantId);
-        return true;
+  Restaurant? get randomRestaurant {
+    if (_state is RestaurantSuccess) {
+      final restaurants = (_state as RestaurantSuccess).restaurants;
+      if (restaurants.isNotEmpty) {
+        final random = Random();
+        final index = random.nextInt(restaurants.length);
+        return restaurants[index];
       }
-      return false;
-    } catch (_) {
-      return false;
     }
+    return null;
   }
 }

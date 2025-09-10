@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/restaurant_provider.dart';
 import '../providers/settings_provider.dart';
 import '../providers/theme_provider.dart';
 import '../utils/app_theme.dart';
@@ -110,33 +111,47 @@ class _NotificationSettingsSection extends StatelessWidget {
                     if (!context.mounted) return;
 
                     if (status.isGranted) {
-                      try {
-                        await settingsProvider.setDailyReminder(true);
-                        if (!context.mounted) return;
+                      final restaurantProvider = context
+                          .read<RestaurantProvider>();
+                      final randomRestaurant =
+                          restaurantProvider.randomRestaurant;
+
+                      if (randomRestaurant != null) {
+                        try {
+                          await NotificationHelper.scheduleDailyReminder(
+                            randomRestaurant,
+                          );
+                          await settingsProvider.setDailyReminder(true);
+                          if (!context.mounted) return;
+                          messenger.showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Pengingat harian telah diaktifkan',
+                              ),
+                            ),
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text('Gagal mengaktifkan pengingat: $e'),
+                            ),
+                          );
+                        }
+                      } else {
                         messenger.showSnackBar(
                           const SnackBar(
-                            content: Text('Pengingat harian telah diaktifkan'),
-                          ),
-                        );
-                      } catch (error) {
-                        if (!context.mounted) return;
-                        messenger.showSnackBar(
-                          SnackBar(
                             content: Text(
-                              'Gagal mengaktifkan pengingat: $error',
+                              'Daftar restoran belum siap. Coba lagi sebentar.',
                             ),
-                            backgroundColor: Theme.of(
-                              context,
-                            ).colorScheme.error,
+                            backgroundColor: Colors.orange,
                           ),
                         );
                       }
                     } else {
                       messenger.showSnackBar(
                         SnackBar(
-                          content: const Text(
-                            'Izin notifikasi ditolak. Pengingat tidak diaktifkan.',
-                          ),
+                          content: const Text('Izin notifikasi ditolak.'),
                           action: SnackBarAction(
                             label: 'Setelan',
                             onPressed: openAppSettings,
@@ -145,25 +160,14 @@ class _NotificationSettingsSection extends StatelessWidget {
                       );
                     }
                   } else {
-                    try {
-                      await settingsProvider.setDailyReminder(false);
-                      if (!context.mounted) return;
-                      messenger.showSnackBar(
-                        const SnackBar(
-                          content: Text('Pengingat harian telah dinonaktifkan'),
-                        ),
-                      );
-                    } catch (error) {
-                      if (!context.mounted) return;
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Gagal menonaktifkan pengingat: $error',
-                          ),
-                          backgroundColor: Theme.of(context).colorScheme.error,
-                        ),
-                      );
-                    }
+                    await NotificationHelper.cancelDailyReminder();
+                    await settingsProvider.setDailyReminder(false);
+                    if (!context.mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Pengingat harian telah dinonaktifkan'),
+                      ),
+                    );
                   }
                 },
               ),
@@ -178,14 +182,29 @@ class _NotificationSettingsSection extends StatelessWidget {
                 icon: Icons.notification_important,
                 title: 'Test Notifikasi',
                 subtitle: 'Kirim notifikasi test sekarang',
-                onTap: () async {
-                  await NotificationHelper.showInstantTestNotification();
-                  if (!context.mounted) return;
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Notifikasi test telah dikirim!'),
-                    ),
-                  );
+                onTap: () {
+                  final restaurantProvider = context.read<RestaurantProvider>();
+                  final randomRestaurant = restaurantProvider.randomRestaurant;
+
+                  if (randomRestaurant != null) {
+                    NotificationHelper.showInstantTestNotification(
+                      randomRestaurant,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Notifikasi test telah dikirim!'),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Daftar restoran belum siap untuk test notifikasi.',
+                        ),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
                 },
               );
             }
@@ -496,6 +515,7 @@ void _showResetDialog(BuildContext context) {
               await themeProvider.setTheme(ThemeMode.light);
               if (!kIsWeb) {
                 await settingsProvider.setDailyReminder(false);
+                await NotificationHelper.cancelDailyReminder();
               }
 
               if (!context.mounted) return;

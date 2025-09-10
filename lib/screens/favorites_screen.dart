@@ -176,9 +176,11 @@ class FavoritesScreen extends StatelessWidget {
                   size: 20.0,
                 ),
                 const SizedBox(width: 12.0),
-                Text(
-                  '${favorites.length} restoran favorit',
-                  style: theme.textTheme.bodyMedium,
+                Flexible(
+                  child: Text(
+                    '${favorites.length} restoran favorit',
+                    style: theme.textTheme.bodyMedium,
+                  ),
                 ),
               ],
             ),

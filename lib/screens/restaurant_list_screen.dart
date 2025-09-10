@@ -19,6 +19,7 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RestaurantProvider>().fetchRestaurants();
       _syncFavorites();
     });
   }
@@ -52,8 +53,7 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
               message,
               restaurantProvider,
             ),
-            RestaurantInitial() =>
-              _buildLoadingIndicator(), // Should not be reached, but for exhaustiveness
+            _ => _buildLoadingIndicator(),
           };
         },
       ),

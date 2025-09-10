@@ -9,7 +9,6 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 import '../data/models/restaurant.dart';
-import '../data/services/api_service.dart';
 
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse notificationResponse) {
@@ -29,10 +28,9 @@ class NotificationHelper {
       'Get daily recommendations for amazing restaurants!';
 
   static Future<void> initialize() async {
-    if (kIsWeb) return; // Disable this feature on web
+    if (kIsWeb) return;
     await _configureLocalTimeZone();
 
-    // Using a default system icon to prevent crashes
     const AndroidInitializationSettings initializationSettingsAndroid =
         AndroidInitializationSettings('@android:drawable/ic_dialog_info');
 
@@ -78,7 +76,7 @@ class NotificationHelper {
     return true;
   }
 
-  static Future<void> scheduleDailyReminder() async {
+  static Future<void> scheduleDailyReminder(Restaurant restaurant) async {
     if (kIsWeb) return;
     if (!await _requestPermissions()) return;
 
@@ -94,9 +92,6 @@ class NotificationHelper {
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
-
-    final restaurant = await _getRestaurantForNotification();
-    if (restaurant == null) return;
 
     final androidPlatformChannelSpecifics = AndroidNotificationDetails(
       _channelId,
@@ -139,34 +134,15 @@ class NotificationHelper {
     );
   }
 
-  static Future<Restaurant?> _getRestaurantForNotification() async {
-    try {
-      final apiService = ApiService();
-      final restaurants = await apiService.getRestaurants();
-      if (restaurants.isNotEmpty) {
-        return (restaurants..shuffle()).first;
-      }
-    } catch (e) {
-      developer.log(
-        'Error fetching restaurant for notification: $e',
-        name: 'NotificationHelper',
-      );
-    }
-    return null;
-  }
-
   static Future<void> cancelDailyReminder() async {
     if (kIsWeb) return;
     await _flutterLocalNotificationsPlugin.cancel(0);
     developer.log('Daily reminder cancelled', name: 'NotificationHelper');
   }
 
-  static Future<void> showInstantTestNotification() async {
+  static Future<void> showInstantTestNotification(Restaurant restaurant) async {
     if (kIsWeb) return;
     if (!await _requestPermissions()) return;
-
-    final restaurant = await _getRestaurantForNotification();
-    if (restaurant == null) return;
 
     final androidPlatformChannelSpecifics = AndroidNotificationDetails(
       _channelId,
