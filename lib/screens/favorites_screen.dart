@@ -191,7 +191,10 @@ class FavoritesScreen extends StatelessWidget {
             child: ListView.builder(
               itemCount: favorites.length,
               itemBuilder: (context, index) {
-                return RestaurantCard(restaurant: favorites[index]);
+                return RestaurantCard(
+                  restaurant: favorites[index],
+                  heroTagPrefix: 'favorites',
+                );
               },
             ),
           ),

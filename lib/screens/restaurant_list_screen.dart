@@ -119,7 +119,10 @@ class _RestaurantListScreenState extends State<RestaurantListScreen> {
       child: ListView.builder(
         itemCount: restaurants.length,
         itemBuilder: (context, index) {
-          return RestaurantCard(restaurant: restaurants[index]);
+          return RestaurantCard(
+            restaurant: restaurants[index],
+            heroTagPrefix: 'restaurant_list',
+          );
         },
       ),
     );

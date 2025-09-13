@@ -12,8 +12,13 @@ import '../widgets/review_section.dart';
 
 class RestaurantDetailScreen extends StatefulWidget {
   final Restaurant restaurant;
+  final String heroTagPrefix;
 
-  const RestaurantDetailScreen({super.key, required this.restaurant});
+  const RestaurantDetailScreen({
+    super.key,
+    required this.restaurant,
+    required this.heroTagPrefix,
+  });
 
   @override
   State<RestaurantDetailScreen> createState() => _RestaurantDetailScreenState();
@@ -74,7 +79,10 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
   ) {
     return CustomScrollView(
       slivers: [
-        _RestaurantDetailAppBar(restaurant: detailedRestaurant),
+        _RestaurantDetailAppBar(
+          restaurant: detailedRestaurant,
+          heroTagPrefix: widget.heroTagPrefix,
+        ),
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -132,8 +140,12 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
 
 class _RestaurantDetailAppBar extends StatelessWidget {
   final RestaurantDetail restaurant;
+  final String heroTagPrefix;
 
-  const _RestaurantDetailAppBar({required this.restaurant});
+  const _RestaurantDetailAppBar({
+    required this.restaurant,
+    required this.heroTagPrefix,
+  });
 
   Widget _buildFavoriteButton(
     BuildContext context,
@@ -174,7 +186,7 @@ class _RestaurantDetailAppBar extends StatelessWidget {
           ),
         ),
         background: Hero(
-          tag: 'restaurant-${restaurant.id}',
+          tag: '$heroTagPrefix-restaurant-${restaurant.id}',
           child: Image.network(
             restaurant.largeImageUrl,
             fit: BoxFit.cover,

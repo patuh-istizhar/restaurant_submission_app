@@ -7,8 +7,13 @@ import 'favorite_button.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Restaurant restaurant;
+  final String heroTagPrefix;
 
-  const RestaurantCard({super.key, required this.restaurant});
+  const RestaurantCard({
+    super.key,
+    required this.restaurant,
+    required this.heroTagPrefix,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +33,10 @@ class RestaurantCard extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  RestaurantDetailScreen(restaurant: restaurant),
+              builder: (context) => RestaurantDetailScreen(
+                restaurant: restaurant,
+                heroTagPrefix: heroTagPrefix,
+              ),
             ),
           );
         },
@@ -39,7 +46,7 @@ class RestaurantCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Hero(
-                tag: 'restaurant-${restaurant.id}',
+                tag: '$heroTagPrefix-restaurant-${restaurant.id}',
                 flightShuttleBuilder:
                     (
                       flightContext,

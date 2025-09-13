@@ -20,14 +20,20 @@ void main() async {
   if (!PlatformUtils.isWeb) await NotificationHelper.initialize();
 
   final apiService = ApiService();
+  final favoritesProvider = await FavoritesProvider.create();
 
-  runApp(MyApp(apiService: apiService));
+  runApp(MyApp(apiService: apiService, favoritesProvider: favoritesProvider));
 }
 
 class MyApp extends StatelessWidget {
   final ApiService apiService;
+  final FavoritesProvider favoritesProvider;
 
-  const MyApp({super.key, required this.apiService});
+  const MyApp({
+    super.key,
+    required this.apiService,
+    required this.favoritesProvider,
+  });
 
   static final _lightTheme = AppTheme.themeFromScheme(
     AppTheme.defaultLightScheme(),
@@ -51,7 +57,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (_) => ReviewProvider(apiService: apiService),
         ),
-        ChangeNotifierProvider(create: (_) => FavoritesProvider.defaultSync()),
+        ChangeNotifierProvider.value(value: favoritesProvider),
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
       child: Consumer<ThemeProvider>(

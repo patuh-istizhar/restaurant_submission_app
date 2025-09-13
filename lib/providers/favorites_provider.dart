@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../data/database/database_helper.dart';
 import '../data/models/restaurant.dart';
 import '../data/storage/favorites_storage.dart';
 import '../data/storage/prefs_favorites_storage.dart';
@@ -25,17 +24,9 @@ class FavoritesProvider with ChangeNotifier {
   bool _hasError = false;
   bool get hasError => _hasError;
 
-  static Future<FavoritesProvider> createDefault() async {
-    if (kIsWeb) {
-      final prefs = await SharedPreferences.getInstance();
-      return FavoritesProvider(PrefsFavoritesStorage(prefs));
-    }
-
-    return FavoritesProvider(_DatabaseHelperAdapter(DatabaseHelper.instance));
-  }
-
-  static FavoritesProvider defaultSync() {
-    return FavoritesProvider(_DatabaseHelperAdapter(DatabaseHelper.instance));
+  static Future<FavoritesProvider> create() async {
+    final prefs = await SharedPreferences.getInstance();
+    return FavoritesProvider(PrefsFavoritesStorage(prefs));
   }
 
   Future<void> loadFavorites() async {
@@ -128,29 +119,4 @@ class FavoritesProvider with ChangeNotifier {
     _hasError = false;
     notifyListeners();
   }
-}
-
-class _DatabaseHelperAdapter implements FavoritesStorage {
-  final DatabaseHelper helper;
-
-  _DatabaseHelperAdapter(this.helper);
-
-  @override
-  Future<void> clearFavorites() async => helper.clearFavorites();
-
-  @override
-  Future<bool> deleteFavorite(String id) async {
-    final count = await helper.deleteFavorite(id);
-    return count > 0;
-  }
-
-  @override
-  Future<List<Restaurant>> getFavorites() async => helper.getFavorites();
-
-  @override
-  Future<void> insertFavorite(Restaurant restaurant) async =>
-      helper.insertFavorite(restaurant);
-
-  @override
-  Future<bool> isFavorite(String id) async => helper.isFavorite(id);
 }

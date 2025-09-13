@@ -48,7 +48,10 @@ class _SearchScreenState extends State<SearchScreen> {
     return ListView.builder(
       itemCount: restaurants.length,
       itemBuilder: (context, index) {
-        return RestaurantCard(restaurant: restaurants[index]);
+        return RestaurantCard(
+          restaurant: restaurants[index],
+          heroTagPrefix: 'search',
+        );
       },
     );
   }
