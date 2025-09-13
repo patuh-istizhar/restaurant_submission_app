@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../data/models/restaurant.dart';
 import '../providers/favorites_provider.dart';
+import '../providers/navigation_provider.dart';
 import '../utils/app_theme.dart';
 import '../widgets/custom_error_widget.dart';
 import '../widgets/restaurant_card.dart';
@@ -140,9 +141,8 @@ class FavoritesScreen extends StatelessWidget {
             const SizedBox(height: 24.0),
             FilledButton.icon(
               onPressed: () {
-                if (Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                }
+                Provider.of<NavigationProvider>(context, listen: false)
+                    .changeNavigationIndex(0);
               },
               icon: const Icon(Icons.explore),
               label: const Text('Jelajahi Restoran'),

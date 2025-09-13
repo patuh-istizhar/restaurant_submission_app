@@ -21,6 +21,7 @@ dependencies:
   workmanager: ^0.9.0+2
   permission_handler: ^12.0.1
   flutter_timezone: ^4.1.1
+  readmore: ^3.0.0
 
 dev_dependencies:
   integration_test:

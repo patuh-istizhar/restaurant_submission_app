@@ -84,6 +84,84 @@ class _AppearanceSettingsSection extends StatelessWidget {
 class _NotificationSettingsSection extends StatelessWidget {
   const _NotificationSettingsSection();
 
+  Future<void> _handleDailyReminderToggle(
+    BuildContext context,
+    bool value,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final settingsProvider = context.read<SettingsProvider>();
+
+    if (value) {
+      final status = await Permission.scheduleExactAlarm.request();
+      if (!context.mounted) return;
+
+      if (status.isGranted) {
+        final restaurantProvider = context.read<RestaurantProvider>();
+        final randomRestaurant = restaurantProvider.randomRestaurant;
+
+        if (randomRestaurant != null) {
+          await NotificationHelper.scheduleDailyReminder(randomRestaurant);
+          await settingsProvider.setDailyReminder(true);
+
+          if (!context.mounted) return;
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Text('Pengingat harian telah diaktifkan.'),
+            ),
+          );
+        } else {
+          await settingsProvider.setDailyReminder(false);
+          messenger.showSnackBar(
+            const SnackBar(
+              content: Text('Daftar restoran belum siap. Coba lagi sebentar.'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      } else {
+        await settingsProvider.setDailyReminder(false);
+        if (!context.mounted) return;
+        _showPermissionDeniedDialog(context);
+      }
+    } else {
+      await NotificationHelper.cancelDailyReminder();
+      await settingsProvider.setDailyReminder(false);
+      if (!context.mounted) return;
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Pengingat harian telah dinonaktifkan'),
+        ),
+      );
+    }
+  }
+
+  void _showPermissionDeniedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Izin Diperlukan'),
+          content: const Text(
+            'Fitur ini memerlukan izin "Alarm & Pengingat" untuk menjadwalkan notifikasi harian. Mohon aktifkan izin ini di pengaturan aplikasi.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Tutup'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                openAppSettings();
+              },
+              child: const Text('Buka Pengaturan'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -103,73 +181,7 @@ class _NotificationSettingsSection extends StatelessWidget {
                   : 'Nonaktif',
               trailing: Switch(
                 value: settingsProvider.isDailyReminderEnabled,
-                onChanged: (value) async {
-                  final messenger = ScaffoldMessenger.of(context);
-
-                  if (value) {
-                    final status = await Permission.notification.request();
-                    if (!context.mounted) return;
-
-                    if (status.isGranted) {
-                      final restaurantProvider = context
-                          .read<RestaurantProvider>();
-                      final randomRestaurant =
-                          restaurantProvider.randomRestaurant;
-
-                      if (randomRestaurant != null) {
-                        try {
-                          await NotificationHelper.scheduleDailyReminder(
-                            randomRestaurant,
-                          );
-                          await settingsProvider.setDailyReminder(true);
-                          if (!context.mounted) return;
-                          messenger.showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Pengingat harian telah diaktifkan',
-                              ),
-                            ),
-                          );
-                        } catch (e) {
-                          if (!context.mounted) return;
-                          messenger.showSnackBar(
-                            SnackBar(
-                              content: Text('Gagal mengaktifkan pengingat: $e'),
-                            ),
-                          );
-                        }
-                      } else {
-                        messenger.showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Daftar restoran belum siap. Coba lagi sebentar.',
-                            ),
-                            backgroundColor: Colors.orange,
-                          ),
-                        );
-                      }
-                    } else {
-                      messenger.showSnackBar(
-                        SnackBar(
-                          content: const Text('Izin notifikasi ditolak.'),
-                          action: SnackBarAction(
-                            label: 'Setelan',
-                            onPressed: openAppSettings,
-                          ),
-                        ),
-                      );
-                    }
-                  } else {
-                    await NotificationHelper.cancelDailyReminder();
-                    await settingsProvider.setDailyReminder(false);
-                    if (!context.mounted) return;
-                    messenger.showSnackBar(
-                      const SnackBar(
-                        content: Text('Pengingat harian telah dinonaktifkan'),
-                      ),
-                    );
-                  }
-                },
+                onChanged: (value) => _handleDailyReminderToggle(context, value),
               ),
             );
           },
@@ -463,7 +475,7 @@ void _showPrivacyDialog(BuildContext context) {
           child: Text(
             'Aplikasi Restaurant App menghormati privasi Anda:\n\n'
             '• Data favorit disimpan secara lokal di perangkat Anda\n'
-            '• Pengaturan tema dan notifikasi tersimpan di perangkat\n'
+            '• Pengaturan tema dan notifikasi tersimpan di perangkat\n\n'
             '• Tidak ada data pribadi yang dikirim ke server\n'
             '• Review yang Anda tulis akan disimpan di server API\n'
             '• Aplikasi memerlukan akses internet untuk mengambil data restoran\n'

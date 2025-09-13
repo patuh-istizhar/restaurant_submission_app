@@ -46,13 +46,7 @@ class FavoriteButton extends StatelessWidget {
             final message = favoritesProvider.message;
             if (message.isNotEmpty) {
               messenger.showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: favoritesProvider.hasError
-                      ? colorScheme.error
-                      : colorScheme.primary,
-                ),
+                SnackBar(content: Text(message)),
               );
               favoritesProvider.clearMessage();
             }

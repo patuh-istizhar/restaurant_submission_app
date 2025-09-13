@@ -144,15 +144,17 @@ class AppTheme {
         contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: colorScheme.primaryContainer,
+        backgroundColor: colorScheme.inverseSurface,
         contentTextStyle: textTheme.bodyMedium!.copyWith(
-          color: colorScheme.onPrimaryContainer,
+          color: colorScheme.onInverseSurface,
+          fontWeight: FontWeight.w500,
         ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
         behavior: SnackBarBehavior.floating,
-        elevation: 1.0,
+        elevation: 4.0,
+        closeIconColor: colorScheme.onInverseSurface,
       ),
       listTileTheme: ListTileThemeData(
         tileColor: colorScheme.surface,
