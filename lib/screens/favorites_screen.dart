@@ -141,8 +141,10 @@ class FavoritesScreen extends StatelessWidget {
             const SizedBox(height: 24.0),
             FilledButton.icon(
               onPressed: () {
-                Provider.of<NavigationProvider>(context, listen: false)
-                    .changeNavigationIndex(0);
+                Provider.of<NavigationProvider>(
+                  context,
+                  listen: false,
+                ).changeNavigationIndex(0);
               },
               icon: const Icon(Icons.explore),
               label: const Text('Jelajahi Restoran'),

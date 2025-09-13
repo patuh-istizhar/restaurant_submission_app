@@ -105,9 +105,7 @@ class _NotificationSettingsSection extends StatelessWidget {
 
           if (!context.mounted) return;
           messenger.showSnackBar(
-            const SnackBar(
-              content: Text('Pengingat harian telah diaktifkan.'),
-            ),
+            const SnackBar(content: Text('Pengingat harian telah diaktifkan.')),
           );
         } else {
           await settingsProvider.setDailyReminder(false);
@@ -128,9 +126,7 @@ class _NotificationSettingsSection extends StatelessWidget {
       await settingsProvider.setDailyReminder(false);
       if (!context.mounted) return;
       messenger.showSnackBar(
-        const SnackBar(
-          content: Text('Pengingat harian telah dinonaktifkan'),
-        ),
+        const SnackBar(content: Text('Pengingat harian telah dinonaktifkan')),
       );
     }
   }
@@ -181,7 +177,8 @@ class _NotificationSettingsSection extends StatelessWidget {
                   : 'Nonaktif',
               trailing: Switch(
                 value: settingsProvider.isDailyReminderEnabled,
-                onChanged: (value) => _handleDailyReminderToggle(context, value),
+                onChanged: (value) =>
+                    _handleDailyReminderToggle(context, value),
               ),
             );
           },
